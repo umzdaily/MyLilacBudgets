@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Lilac Budgets 🌸</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        lilac: {
+                            50: '#FAF5FF',
+                            100: '#F3E8FF',
+                            200: '#E9D5FF',
+                            300: '#D8B4FE',
+                            400: '#C084FC',
+                            500: '#A855F7',
+                            600: '#9333EA',
+                            700: '#7E22CE',
+                            800: '#6B21A8',
+                            900: '#581C87',
+                        },
+                        blush: {
+                            50: '#FFF1F2',
+                            100: '#FFE4E6',
+                            200: '#FECDD3',
+                            300: '#FDA4AF',
+                            400: '#FB7185',
+                            500: '#F43F5E',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- SheetJS CDN for Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Quicksand', 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .floral-bg {
+            background-color: #fbf7fe;
+            background-image: radial-gradient(#e9d5ff 0.8px, transparent 0.8px), radial-gradient(#fbcfe8 0.8px, #fbf7fe 0.8px);
+            background-size: 32px 32px;
+            background-position: 0 0, 16px 16px;
+        }
+        .dark .floral-bg {
+            background-color: #0f172a;
+            background-image: radial-gradient(#331954 0.8px, transparent 0.8px), radial-gradient(#3b1235 0.8px, #0f172a 0.8px);
+            background-size: 32px 32px;
+            background-position: 0 0, 16px 16px;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(233, 213, 255, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(192, 132, 252, 0.4);
+            border-radius: 99px;
+        }
+        .tab-active {
+            color: #9333ea !important;
+            font-weight: 700;
+        }
+        .dark .tab-active {
+            color: #d8b4fe !important;
+        }
+        @keyframes float-flower {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(6deg); }
+        }
+        .animate-float {
+            animation: float-flower 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="floral-bg text-slate-800 dark:text-slate-100 min-h-screen pb-24 md:pb-12 transition-colors duration-200 relative overflow-x-hidden">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-lilac-200/60 dark:border-lilac-900/40 px-4 py-3 shadow-sm">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-lilac-400 via-purple-500 to-blush-400 flex items-center justify-center text-white shadow-md shadow-lilac-300/40 dark:shadow-purple-950/50 animate-float">
+                    <i class="fa-solid fa-spa text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base leading-tight flex items-center gap-1.5 text-lilac-900 dark:text-lilac-200">
+                        My Lilac Budgets <span class="text-xs">🌸</span>
+                    </h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <!-- Sync Button -->
+                <button id="sheetSyncBtn" onclick="openSheetModal()" class="px-3 py-2 rounded-2xl bg-lilac-50 dark:bg-slate-800 text-lilac-700 dark:text-lilac-300 hover:bg-lilac-100 dark:hover:bg-slate-700 transition border border-lilac-200/50 dark:border-lilac-800/40 shadow-sm flex items-center gap-2 text-xs font-bold" title="Pengaturan & Sinkronisasi Google Sheets">
+                    <i class="fa-solid fa-cloud-arrow-up text-lilac-500 text-sm"></i>
+                    <span id="syncStatusText" class="hidden sm:inline">Google Sheet</span>
+                    <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                </button>
+
+                <!-- Dark Mode Toggle -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2.5 rounded-2xl bg-lilac-50 dark:bg-slate-800 text-lilac-600 dark:text-lilac-300 hover:bg-lilac-100 dark:hover:bg-slate-700 transition border border-lilac-200/50 dark:border-lilac-800/40 shadow-sm">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-300"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Cycle Bar -->
+    <div class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border-b border-lilac-100 dark:border-lilac-900/30 px-4 py-2.5">
+        <div class="max-w-3xl mx-auto flex items-center justify-between gap-2">
+            <label for="cycleSelect" class="text-xs font-bold text-lilac-700 dark:text-lilac-300 flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-clover text-lilac-500"></i> Periode Gajian:
+            </label>
+            <select id="cycleSelect" class="bg-lilac-50/80 dark:bg-slate-900/80 border border-lilac-200 dark:border-lilac-800/60 rounded-2xl px-3 py-1.5 text-xs font-bold text-lilac-900 dark:text-lilac-200 focus:ring-2 focus:ring-lilac-400 outline-none w-full max-w-xs truncate shadow-sm">
+            </select>
+        </div>
+    </div>
+
+    <!-- Main Tabs Content -->
+    <main class="max-w-3xl mx-auto px-4 py-5">
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="tabDashboard" class="space-y-5">
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="bg-gradient-to-br from-emerald-400 via-teal-500 to-emerald-600 text-white p-4 rounded-3xl shadow-lg shadow-emerald-500/15 relative overflow-hidden">
+                    <div class="absolute -right-2 -bottom-2 opacity-20 text-6xl"><i class="fa-solid fa-seedling"></i></div>
+                    <p class="text-emerald-100 text-[11px] font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1"><span>🌱</span> Total Pemasukan</p>
+                    <h3 id="totalIncomeText" class="text-xl sm:text-2xl font-bold">Rp 0</h3>
+                    <p class="text-[10px] text-emerald-100/90 mt-1 flex items-center gap-1"><i class="fa-solid fa-heart"></i> Periode gajian aktif</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-lilac-500 via-purple-500 to-blush-500 text-white p-4 rounded-3xl shadow-lg shadow-lilac-500/15 relative overflow-hidden">
+                    <div class="absolute -right-2 -bottom-2 opacity-20 text-6xl"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <p class="text-purple-100 text-[11px] font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1"><span>🌸</span> Total Pengeluaran</p>
+                    <h3 id="totalExpenseText" class="text-xl sm:text-2xl font-bold">Rp 0</h3>
+                    <p class="text-[10px] text-purple-100/90 mt-1 flex items-center gap-1"><i class="fa-solid fa-sparkles"></i> Periode gajian aktif</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-purple-700 via-lilac-800 to-indigo-800 text-white p-4 rounded-3xl shadow-lg shadow-purple-900/20 relative overflow-hidden">
+                    <div class="absolute -right-2 -bottom-2 opacity-20 text-6xl"><i class="fa-solid fa-gem"></i></div>
+                    <p class="text-lilac-200 text-[11px] font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1"><span>✨</span> Sisa Saldo Siklus</p>
+                    <h3 id="netBalanceText" class="text-xl sm:text-2xl font-bold">Rp 0</h3>
+                    <p class="text-[10px] text-lilac-200/90 mt-1 flex items-center gap-1"><i class="fa-solid fa-shield-cat"></i> Estimasi dana aman</p>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-4 rounded-3xl shadow-sm border border-lilac-200/70 dark:border-lilac-900/40 space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-lilac-100 dark:border-slate-700">
+                        <h3 class="text-xs font-bold text-lilac-900 dark:text-lilac-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-pie text-lilac-500"></i> Proporsi Per Kategori 🪻
+                        </h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label for="catChartTypeFilter" class="block text-[11px] font-bold text-lilac-700 dark:text-lilac-300 mb-1">Tampilkan Data:</label>
+                            <select id="catChartTypeFilter" onchange="updateCategoryChart()" class="w-full bg-lilac-50/70 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl px-3 py-1.5 text-xs font-semibold outline-none">
+                                <option value="expense" selected>Pengeluaran 🛍️</option>
+                                <option value="income">Pemasukan 💸</option>
+                                <option value="all">Pengeluaran & Pemasukan 📊</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="catChartCycleFilter" class="block text-[11px] font-bold text-lilac-700 dark:text-lilac-300 mb-1">Siklus (1 Bulan):</label>
+                            <select id="catChartCycleFilter" onchange="updateCategoryChart()" class="w-full bg-lilac-50/70 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl px-3 py-1.5 text-xs font-semibold outline-none truncate">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                        <div class="relative w-full sm:w-1/2 h-[190px] flex items-center justify-center shrink-0">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                        <div id="categoryLegendContainer" class="w-full sm:w-1/2 max-h-[190px] overflow-y-auto space-y-1.5 pr-1 text-xs">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-4 rounded-3xl shadow-sm border border-lilac-200/70 dark:border-lilac-900/40 space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-lilac-100 dark:border-slate-700">
+                        <h3 class="text-xs font-bold text-lilac-900 dark:text-lilac-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-column text-blush-500"></i> Tren Siklus Keuangan 🌷
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label for="trendRangeFilter" class="block text-[11px] font-bold text-lilac-700 dark:text-lilac-300 mb-1">Rentang Siklus:</label>
+                            <select id="trendRangeFilter" onchange="updateTrendChart()" class="w-full bg-lilac-50/70 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl px-3 py-1.5 text-xs font-semibold outline-none">
+                                <option value="3">3 Siklus Terakhir</option>
+                                <option value="6" selected>6 Siklus Terakhir</option>
+                                <option value="12">12 Siklus Terakhir</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="trendTypeFilter" class="block text-[11px] font-bold text-lilac-700 dark:text-lilac-300 mb-1">Tampilkan Data:</label>
+                            <select id="trendTypeFilter" onchange="updateTrendChart()" class="w-full bg-lilac-50/70 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl px-3 py-1.5 text-xs font-semibold outline-none">
+                                <option value="expense">Pengeluaran 🛍️</option>
+                                <option value="income">Pemasukan 💸</option>
+                                <option value="both" selected>Pengeluaran & Pemasukan 📊</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="relative min-h-[220px] flex items-center justify-center pt-1">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: INPUT TRANSAKSI -->
+        <section id="tabInput" class="hidden space-y-4">
+            <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-5 rounded-3xl shadow-sm border border-lilac-200/70 dark:border-lilac-900/40 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-lilac-100 dark:border-slate-700">
+                    <h2 class="text-base font-bold text-lilac-900 dark:text-lilac-200 flex items-center gap-2">
+                        <i class="fa-solid fa-heart text-lilac-500"></i> <span id="formTitleText">Catat Transaksi Baru</span>
+                    </h2>
+                </div>
+                
+                <form id="transactionForm" class="space-y-4" onsubmit="handleFormSubmit(event)">
+                    <input type="hidden" id="editTxId" value="">
+
+                    <div class="grid grid-cols-2 gap-2 p-1 bg-lilac-100/70 dark:bg-slate-900 rounded-2xl">
+                        <button type="button" id="typeExpenseBtn" onclick="setTxType('expense')" class="py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all bg-white dark:bg-slate-800 text-blush-500 shadow-sm">
+                            <i class="fa-solid fa-arrow-down-left text-xs"></i> Pengeluaran 🛍️
+                        </button>
+                        <button type="button" id="typeIncomeBtn" onclick="setTxType('income')" class="py-2.5 px-4 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all text-slate-500 dark:text-slate-400 hover:text-emerald-600">
+                            <i class="fa-solid fa-arrow-up-right text-xs"></i> Pemasukan 💸
+                        </button>
+                    </div>
+                    <input type="hidden" id="txType" value="expense">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label id="txDateLabel" class="block text-xs font-bold text-lilac-700 dark:text-lilac-300 mb-1">Tanggal Transaksi</label>
+                            <input type="date" id="txDate" required class="w-full bg-lilac-50/60 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl p-2.5 text-xs outline-none focus:ring-2 focus:ring-lilac-400">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-lilac-700 dark:text-lilac-300 mb-1">Jumlah Nominal (Rp)</label>
+                            <input type="number" id="txAmount" placeholder="0" min="1" required class="w-full bg-lilac-50/60 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl p-2.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-lilac-400">
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-bold text-lilac-700 dark:text-lilac-300">Pilih Kategori</label>
+                                <button type="button" onclick="openCategoryModal()" class="text-[11px] text-lilac-600 dark:text-lilac-400 hover:underline font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-wand-magic text-[10px]"></i> Kelola Kategori
+                                </button>
+                            </div>
+                            <select id="txCategory" required class="w-full bg-lilac-50/60 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl p-2.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-lilac-400">
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-lilac-700 dark:text-lilac-300 mb-1">Catatan / Keterangan (Opsional)</label>
+                            <input type="text" id="txNote" placeholder="Misal: Beli matcha, skincare, bensin..." class="w-full bg-lilac-50/60 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl p-2.5 text-xs outline-none focus:ring-2 focus:ring-lilac-400">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 pt-3">
+                        <button type="submit" id="submitTxBtn" class="flex-1 bg-gradient-to-r from-lilac-500 via-purple-500 to-blush-400 hover:from-lilac-600 hover:to-blush-500 text-white py-3 rounded-2xl font-bold text-xs shadow-md shadow-lilac-400/30 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-sparkles"></i> <span id="submitBtnLabel">Simpan Transaksi</span>
+                        </button>
+                        <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden px-4 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-2xl font-semibold text-xs transition">
+                            Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 3: RIWAYAT TRANSAKSI -->
+        <section id="tabHistory" class="hidden space-y-4">
+            <div class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md p-4 sm:p-5 rounded-3xl shadow-sm border border-lilac-200/70 dark:border-lilac-900/40 space-y-4">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-lilac-100 dark:border-slate-700 pb-3">
+                    <div>
+                        <h2 class="text-base font-bold text-lilac-900 dark:text-lilac-200 flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-lilac-500"></i> Riwayat Transaksi 🌺
+                        </h2>
+                        <p class="text-[11px] text-lilac-600 dark:text-lilac-400 font-semibold">Daftar pencatatan keuangan periode gajian terpilih</p>
+                    </div>
+                    
+                    <button onclick="exportToExcel()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-emerald-500/20 transition">
+                        <i class="fa-solid fa-file-excel text-sm"></i> Download Excel (.xlsx)
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-lilac-400 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="renderTransactions()" placeholder="Cari catatan / kategori..." class="w-full bg-lilac-50/60 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl pl-9 pr-3 py-2 text-xs outline-none">
+                    </div>
+
+                    <select id="typeFilter" onchange="renderTransactions()" class="bg-lilac-50/60 dark:bg-slate-900 border border-lilac-200 dark:border-slate-600 rounded-2xl px-3 py-2 text-xs font-semibold text-lilac-900 dark:text-lilac-200 outline-none">
+                        <option value="all">Pengeluaran & Pemasukan 📊</option>
+                        <option value="expense">Pengeluaran 🛍️</option>
+                        <option value="income">Pemasukan 💸</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-12 px-2 py-2 bg-lilac-100/70 dark:bg-slate-900/80 rounded-2xl text-[11px] font-bold text-lilac-800 dark:text-lilac-300 border border-lilac-200/60 dark:border-slate-700/60 mt-1 items-center">
+                    <div class="col-span-4 flex items-center gap-1 truncate"><i class="fa-solid fa-file-lines text-lilac-500 text-[10px]"></i><span>Deskripsi</span></div>
+                    <div class="col-span-3 flex items-center gap-1 truncate"><i class="fa-solid fa-calendar-days text-lilac-500 text-[10px]"></i><span>Tanggal</span></div>
+                    <div class="col-span-3 text-right truncate"><i class="fa-solid fa-coins text-lilac-500 text-[10px]"></i><span>Nominal</span></div>
+                    <div class="col-span-2 text-center truncate"><i class="fa-solid fa-sliders text-lilac-500 text-[10px]"></i><span>Action</span></div>
+                </div>
+
+                <div class="divide-y divide-lilac-100 dark:divide-slate-700/60 max-h-[460px] overflow-y-auto pr-1" id="txListContainer">
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-lilac-200 dark:border-lilac-900/40 shadow-lg">
+        <div class="max-w-md mx-auto grid grid-cols-3 h-14">
+            <button id="navDashboardBtn" onclick="switchTab('dashboard')" class="flex items-center justify-center text-lilac-600 dark:text-lilac-300 transition-all tab-active">
+                <div class="relative flex items-center justify-center p-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
+                    <span class="absolute top-0 -right-1 text-[10px] animate-pulse">🌸</span>
+                </div>
+            </button>
+
+            <button id="navInputBtn" onclick="switchTab('input')" class="flex items-center justify-center text-slate-400 hover:text-lilac-600 transition-all">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-lilac-500 via-purple-500 to-blush-400 text-white flex items-center justify-center shadow-lg shadow-lilac-400/40 border-2 border-white dark:border-slate-800 transition-transform active:scale-95">
+                    <i class="fa-solid fa-heart-circle-plus text-lg"></i>
+                </div>
+            </button>
+
+            <button id="navHistoryBtn" onclick="switchTab('history')" class="flex items-center justify-center text-slate-400 hover:text-lilac-600 transition-all">
+                <div class="relative flex items-center justify-center p-2">
+                    <i class="fa-solid fa-book-bookmark text-xl"></i>
+                    <span class="absolute top-0 -right-1 text-[10px]">✨</span>
+                </div>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Modal Categories -->
+    <div id="categoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden transition-opacity">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-5 shadow-xl border border-lilac-200 dark:border-lilac-800/60 space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-lilac-100 dark:border-slate-700">
+                <h3 class="font-bold text-sm text-lilac-900 dark:text-lilac-200 flex items-center gap-2">
+                    <i class="fa-solid fa-tags text-lilac-500"></i> Kelola Kategori 🌸
+                </h3>
+                <button onclick="closeCategoryModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 p-1 bg-lilac-100/70 dark:bg-slate-900 rounded-2xl">
+                <button type="button" id="catModalTypeExpenseBtn" onclick="setCatModalType('expense')" class="py-2 px-3 rounded-xl text-xs font-bold transition-all bg-white dark:bg-slate-800 text-blush-500 shadow-sm flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-arrow-down-left text-xs"></i> Pengeluaran
+                </button>
+                <button type="button" id="catModalTypeIncomeBtn" onclick="setCatModalType('income')" class="py-2 px-3 rounded-xl text-xs font-bold transition-all text-slate-500 hover:text-emerald-600 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-arrow-up-right text-xs"></i> Pemasukan
+                </button>
+            </div>
+
+            <form id="categoryForm" onsubmit="handleCategorySubmit(event)" class="flex gap-2">
+                <input type="hidden" id="editCatIndex" value="-1">
+                <input type="text" id="catNameInput" placeholder="Ketik nama kategori baru..." required class="flex-1 bg-lilac-50/60 dark:bg-slate-900 border border-lilac-200 rounded-2xl px-3 py-2 text-xs outline-none">
+                <button type="submit" id="catSubmitBtn" class="bg-lilac-600 text-white px-3.5 py-2 rounded-2xl text-xs font-bold">+ Tambah</button>
+                <button type="button" id="catCancelBtn" onclick="resetCatForm()" class="hidden bg-slate-200 text-slate-700 px-3 py-2 rounded-2xl text-xs font-semibold">Batal</button>
+            </form>
+
+            <div>
+                <input type="text" id="catSearchInput" oninput="renderCategoryList()" placeholder="Cari kategori..." class="w-full bg-lilac-50/60 dark:bg-slate-900 border border-lilac-200 rounded-xl px-3 py-1.5 text-xs outline-none">
+            </div>
+
+            <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1" id="categoryListContainer"></div>
+
+            <div class="pt-2 flex items-center justify-between border-t border-lilac-100 dark:border-slate-700">
+                <button onclick="resetCategoriesToDefault()" class="text-[11px] text-slate-400 hover:text-blush-500 underline">Reset Default</button>
+                <button onclick="closeCategoryModal()" class="px-4 py-2 bg-lilac-100 dark:bg-slate-700 text-lilac-900 dark:text-lilac-200 rounded-2xl text-xs font-semibold">Selesai</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Google Sheets -->
+    <div id="sheetModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden transition-opacity">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-md w-full p-5 shadow-xl border border-lilac-200 dark:border-lilac-800/60 space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-lilac-100 dark:border-slate-700">
+                <h3 class="font-bold text-sm text-lilac-900 dark:text-lilac-200 flex items-center gap-2">
+                    <i class="fa-solid fa-file-excel text-emerald-500"></i> Sinkronisasi Google Sheets 🌸
+                </h3>
+                <button onclick="closeSheetModal()" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="p-3 bg-lilac-50 dark:bg-slate-900/80 rounded-2xl border border-lilac-200/60 dark:border-slate-700 text-xs space-y-1.5 text-slate-600 dark:text-slate-300">
+                <p class="font-bold text-lilac-800 dark:text-lilac-300 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-info text-lilac-500"></i> Petunjuk:
+                </p>
+                <ol class="list-decimal list-inside space-y-1 text-[11px] leading-relaxed">
+                    <li>Salin kode baru dari tab <b>Google Apps Script Backend</b>.</li>
+                    <li>Di Google Apps Script, klik <b>Deploy > New deployment</b>.</li>
+                    <li>Pastikan <b>Who has access</b> = <b>Anyone</b> lalu klik <b>Deploy</b>.</li>
+                </ol>
+            </div>
+
+            <div class="space-y-2">
+                <label for="webAppUrlInput" class="block text-xs font-bold text-lilac-700 dark:text-lilac-300">Google Web App URL</label>
+                <input type="url" id="webAppUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-lilac-50/60 dark:bg-slate-900 border border-lilac-200 rounded-2xl p-2.5 text-xs outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="saveSheetUrl()" class="col-span-2 bg-gradient-to-r from-lilac-500 to-purple-600 text-white py-2.5 rounded-2xl text-xs font-bold shadow-md shadow-lilac-400/30">
+                    Simpan URL & Sambungkan
+                </button>
+                <button onclick="pullDataFromSheet()" id="btnPullSheet" class="bg-emerald-500 text-white py-2 px-3 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> Tarik dari Sheet
+                </button>
+                <button onclick="pushAllDataToSheet()" id="btnPushSheet" class="bg-purple-600 text-white py-2 px-3 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Kirim Semua
+                </button>
+            </div>
+
+            <div class="pt-2 flex items-center justify-between border-t border-lilac-100 dark:border-slate-700">
+                <span id="sheetConnectionStatus" class="text-[11px] text-slate-500">Status: Belum Terhubung</span>
+                <button onclick="closeSheetModal()" class="px-4 py-1.5 bg-lilac-100 dark:bg-slate-700 text-lilac-900 dark:text-lilac-200 rounded-2xl text-xs font-semibold">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-2.5 rounded-2xl text-xs font-semibold shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-lilac-300 dark:text-lilac-600"></i>
+        <span id="toastMsg">Pesan Notifikasi</span>
+    </div>
+
+    <script>
+        const DEFAULT_EXPENSE_CATEGORIES = [
+            "Arisan", "Belanja", "Bensin", "Jajan", "Keluarga", 
+            "Kosan", "Makan", "Minum", "Motor", "Pulang", "Setoran"
+        ];
+
+        const DEFAULT_INCOME_CATEGORIES = [
+            "Gaji", "Bonus", "Sampingan", "Lainnya"
+        ];
+
+        let expenseCategories = [];
+        let incomeCategories = [];
+        let currentCatModalType = 'expense';
+        let transactions = [];
+        let categoryChartInstance = null;
+        let trendChartInstance = null;
+        let activeTab = 'dashboard';
+        let webAppUrl = '';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadLocalStorageData();
+            initSheetUrl();
+            setDefaultDate();
+            populateCycleDropdown(false);
+            renderTransactions();
+            updateDashboardCharts();
+
+            document.getElementById('cycleSelect').addEventListener('change', () => {
+                renderTransactions();
+                updateDashboardCharts();
+            });
+
+            // Auto-sync dari Google Sheet jika Web App URL tersimpan
+            if (webAppUrl) {
+                pullDataFromSheet();
+            }
+        });
+
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        function initSheetUrl() {
+            webAppUrl = localStorage.getItem('money_script_url') || '';
+            const urlInput = document.getElementById('webAppUrlInput');
+            if (urlInput) urlInput.value = webAppUrl;
+            updateSyncUIStatus();
+        }
+
+        function openSheetModal() {
+            document.getElementById('sheetModal').classList.remove('hidden');
+        }
+
+        function closeSheetModal() {
+            document.getElementById('sheetModal').classList.add('hidden');
+        }
+
+        function saveSheetUrl() {
+            const inputVal = document.getElementById('webAppUrlInput').value.trim();
+            if (inputVal && !inputVal.startsWith('https://script.google.com/')) {
+                showToast('URL harus diawali https://script.google.com/', 'error');
+                return;
+            }
+            webAppUrl = inputVal;
+            localStorage.setItem('money_script_url', webAppUrl);
+            updateSyncUIStatus();
+            if (webAppUrl) {
+                showToast('URL Google Apps Script disimpan!');
+                pullDataFromSheet();
+            } else {
+                showToast('Koneksi Google Sheets dinonaktifkan');
+            }
+        }
+
+        function updateSyncUIStatus() {
+            const dot = document.getElementById('syncStatusDot');
+            const statusText = document.getElementById('sheetConnectionStatus');
+            const syncStatusText = document.getElementById('syncStatusText');
+
+            if (webAppUrl) {
+                if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                if (statusText) statusText.innerHTML = '<span class="text-emerald-500 font-bold">🟢 Terhubung ke Google Sheet</span>';
+                if (syncStatusText) syncStatusText.textContent = 'Sheet Aktif';
+            } else {
+                if (dot) dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+                if (statusText) statusText.innerHTML = '<span class="text-slate-400 font-semibold">⚪ Belum Terhubung</span>';
+                if (syncStatusText) syncStatusText.textContent = 'Google Sheet';
+            }
+        }
+
+        async function postToSheet(action, payload) {
+            if (!webAppUrl) return null;
+            try {
+                const response = await fetch(webAppUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: action, data: payload }),
+                    redirect: 'follow'
+                });
+                return await response.json();
+            } catch (err) {
+                console.error('Error Syncing to Sheet:', err);
+                return null;
+            }
+        }
+
+        async function pullDataFromSheet() {
+            if (!webAppUrl) return;
+
+            const btn = document.getElementById('btnPullSheet');
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memuat...';
+
+            try {
+                const separator = webAppUrl.includes('?') ? '&' : '?';
+                const fetchUrl = `${webAppUrl}${separator}action=getTransactions&t=${Date.now()}`;
+                const res = await fetch(fetchUrl);
+                const json = await res.json();
+
+                if (json && json.status === 'success' && Array.isArray(json.data)) {
+                    transactions = json.data;
+                    saveTransactions();
+                    populateCycleDropdown(false);
+                    renderTransactions();
+                    updateDashboardCharts();
+                    showToast(`Berhasil sinkron ${json.data.length} transaksi dari Sheet`);
+                }
+            } catch (err) {
+                console.error('Error fetching sheet data:', err);
+            } finally {
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Tarik dari Sheet';
+            }
+        }
+
+        async function pushAllDataToSheet() {
+            if (!webAppUrl) {
+                showToast('Masukkan Web App URL terlebih dahulu', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btnPushSheet');
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Mengirim...';
+
+            const res = await postToSheet('syncAll', transactions);
+            if (res && res.status === 'success') {
+                showToast('Semua data berhasil diunggah ke Google Sheet 🌸');
+            }
+
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Kirim Semua';
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+            updateDashboardCharts();
+        }
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+
+            document.getElementById('tabDashboard').classList.add('hidden');
+            document.getElementById('tabInput').classList.add('hidden');
+            document.getElementById('tabHistory').classList.add('hidden');
+
+            const dashBtn = document.getElementById('navDashboardBtn');
+            const inputBtn = document.getElementById('navInputBtn');
+            const historyBtn = document.getElementById('navHistoryBtn');
+
+            [dashBtn, inputBtn, historyBtn].forEach(btn => {
+                btn.className = 'flex flex-col items-center justify-center gap-0.5 text-slate-400 hover:text-lilac-600 dark:hover:text-lilac-300 transition-all';
+            });
+
+            if (tabName === 'dashboard') {
+                document.getElementById('tabDashboard').classList.remove('hidden');
+                dashBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-lilac-600 dark:text-lilac-300 transition-all tab-active';
+                updateDashboardCharts();
+            } else if (tabName === 'input') {
+                document.getElementById('tabInput').classList.remove('hidden');
+                inputBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-lilac-600 dark:text-lilac-300 transition-all tab-active';
+            } else if (tabName === 'history') {
+                document.getElementById('tabHistory').classList.remove('hidden');
+                historyBtn.className = 'flex flex-col items-center justify-center gap-0.5 text-lilac-600 dark:text-lilac-300 transition-all tab-active';
+                renderTransactions();
+            }
+        }
+
+        function loadLocalStorageData() {
+            const savedExpenseCats = localStorage.getItem('money_expense_categories');
+            expenseCategories = savedExpenseCats ? JSON.parse(savedExpenseCats) : [...DEFAULT_EXPENSE_CATEGORIES];
+
+            const savedIncomeCats = localStorage.getItem('money_income_categories');
+            incomeCategories = savedIncomeCats ? JSON.parse(savedIncomeCats) : [...DEFAULT_INCOME_CATEGORIES];
+
+            const savedTx = localStorage.getItem('money_transactions');
+            transactions = savedTx ? JSON.parse(savedTx) : [];
+        }
+
+        function saveCategories() {
+            localStorage.setItem('money_expense_categories', JSON.stringify(expenseCategories));
+            localStorage.setItem('money_income_categories', JSON.stringify(incomeCategories));
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('money_transactions', JSON.stringify(transactions));
+        }
+
+        function getCycleForDate(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth();
+            const date = dateObj.getDate();
+
+            let startDate, endDate;
+
+            if (date >= 28) {
+                startDate = new Date(year, month, 28);
+                endDate = new Date(year, month + 1, 27, 23, 59, 59);
+            } else {
+                startDate = new Date(year, month - 1, 28);
+                endDate = new Date(year, month, 27, 23, 59, 59);
+            }
+
+            const formatMonthYear = (d) => {
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+                return `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+            };
+
+            const label = `28 ${formatMonthYear(startDate)} - 27 ${formatMonthYear(endDate)}`;
+            const cycleKey = `${startDate.toISOString().split('T')[0]}_${endDate.toISOString().split('T')[0]}`;
+
+            return { startDate, endDate, label, cycleKey };
+        }
+
+        function populateCycleDropdown(selectCurrent = true) {
+            const cycleSelect = document.getElementById('cycleSelect');
+            const catChartCycleFilter = document.getElementById('catChartCycleFilter');
+            if (!cycleSelect) return;
+
+            const existingVal = cycleSelect.value;
+            const cycleMap = new Map();
+
+            const currentCycle = getCycleForDate(new Date());
+            cycleMap.set(currentCycle.cycleKey, currentCycle);
+
+            transactions.forEach(t => {
+                const tDate = new Date(t.date + 'T00:00:00');
+                if (!isNaN(tDate.getTime())) {
+                    const c = getCycleForDate(tDate);
+                    if (!cycleMap.has(c.cycleKey)) {
+                        cycleMap.set(c.cycleKey, c);
+                    }
+                }
+            });
+
+            const sortedCycles = Array.from(cycleMap.values()).sort((a, b) => b.startDate - a.startDate);
+
+            cycleSelect.innerHTML = '';
+            if (catChartCycleFilter) catChartCycleFilter.innerHTML = '';
+
+            sortedCycles.forEach(c => {
+                const opt1 = document.createElement('option');
+                opt1.value = c.cycleKey;
+                opt1.textContent = c.label;
+                opt1.dataset.startDate = c.startDate.toISOString();
+                opt1.dataset.endDate = c.endDate.toISOString();
+                cycleSelect.appendChild(opt1);
+
+                if (catChartCycleFilter) {
+                    const opt2 = document.createElement('option');
+                    opt2.value = c.cycleKey;
+                    opt2.textContent = c.label;
+                    opt2.dataset.startDate = c.startDate.toISOString();
+                    opt2.dataset.endDate = c.endDate.toISOString();
+                    catChartCycleFilter.appendChild(opt2);
+                }
+            });
+
+            if (existingVal && Array.from(cycleSelect.options).some(o => o.value === existingVal)) {
+                cycleSelect.value = existingVal;
+                if (catChartCycleFilter) catChartCycleFilter.value = existingVal;
+            } else if (sortedCycles.length > 0) {
+                cycleSelect.value = sortedCycles[0].cycleKey;
+                if (catChartCycleFilter) catChartCycleFilter.value = sortedCycles[0].cycleKey;
+            }
+        }
+
+        function getSelectedCycleDates() {
+            const select = document.getElementById('cycleSelect');
+            if (!select || !select.selectedOptions.length) return null;
+
+            const opt = select.selectedOptions[0];
+            return {
+                startDate: new Date(opt.dataset.startDate),
+                endDate: new Date(opt.dataset.endDate),
+                key: select.value
+            };
+        }
+
+        function getCategoryChartCycleDates() {
+            const select = document.getElementById('catChartCycleFilter');
+            if (!select || !select.selectedOptions.length) return getSelectedCycleDates();
+
+            const opt = select.selectedOptions[0];
+            return {
+                startDate: new Date(opt.dataset.startDate),
+                endDate: new Date(opt.dataset.endDate),
+                label: opt.textContent,
+                key: select.value
+            };
+        }
+
+        function renderCategoryOptions() {
+            const select = document.getElementById('txCategory');
+            if (!select) return;
+
+            const currentVal = select.value;
+            const currentType = document.getElementById('txType')?.value || 'expense';
+            select.innerHTML = '';
+            
+            const catList = currentType === 'income' ? incomeCategories : expenseCategories;
+            const sortedCats = [...catList].sort((a, b) => a.localeCompare(b));
+            
+            sortedCats.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                select.appendChild(opt);
+            });
+
+            if (currentVal && catList.includes(currentVal)) {
+                select.value = currentVal;
+            } else if (sortedCats.length > 0) {
+                select.value = sortedCats[0];
+            }
+        }
+
+        function setCatModalType(type) {
+            currentCatModalType = type;
+            const expBtn = document.getElementById('catModalTypeExpenseBtn');
+            const incBtn = document.getElementById('catModalTypeIncomeBtn');
+
+            if (type === 'expense') {
+                expBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-800 text-rose-600 shadow-sm flex items-center justify-center gap-1.5';
+                incBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-emerald-600 flex items-center justify-center gap-1.5';
+            } else {
+                incBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-800 text-emerald-600 shadow-sm flex items-center justify-center gap-1.5';
+                expBtn.className = 'py-2 px-3 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-rose-600 flex items-center justify-center gap-1.5';
+            }
+
+            resetCatForm();
+            renderCategoryList();
+        }
+
+        function openCategoryModal() {
+            const currentTxType = document.getElementById('txType')?.value || 'expense';
+            setCatModalType(currentTxType);
+            document.getElementById('categoryModal').classList.remove('hidden');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.add('hidden');
+            resetCatForm();
+        }
+
+        function renderCategoryList() {
+            const container = document.getElementById('categoryListContainer');
+            const searchVal = (document.getElementById('catSearchInput')?.value || '').toLowerCase();
+            container.innerHTML = '';
+
+            const activeList = currentCatModalType === 'income' ? incomeCategories : expenseCategories;
+
+            if (activeList.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Belum ada kategori ${currentCatModalType === 'income' ? 'pemasukan' : 'pengeluaran'}.</p>`;
+                return;
+            }
+
+            let filteredCats = [...activeList];
+            if (searchVal) {
+                filteredCats = filteredCats.filter(c => c.toLowerCase().includes(searchVal));
+            }
+
+            filteredCats.sort((a, b) => a.localeCompare(b));
+
+            filteredCats.forEach((cat) => {
+                const originalIndex = activeList.indexOf(cat);
+                const txCount = transactions.filter(t => t.category === cat && t.type === currentCatModalType).length;
+
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200/50 dark:border-slate-700/50 text-xs';
+                item.innerHTML = `
+                    <div class="flex items-center gap-2 truncate pr-2">
+                        <span class="font-semibold text-slate-700 dark:text-slate-200 truncate">${escapeHtml(cat)}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 font-medium shrink-0">${txCount} tx</span>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="editCategory(${originalIndex})" class="p-1.5 text-sky-600 hover:bg-sky-50 rounded-lg transition" title="Edit Kategori">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteCategory(${originalIndex})" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Hapus Kategori">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function handleCategorySubmit(e) {
+            e.preventDefault();
+            const catInput = document.getElementById('catNameInput');
+            const editIndex = parseInt(document.getElementById('editCatIndex').value, 10);
+            const catName = catInput.value.trim();
+
+            if (!catName) return;
+
+            const activeList = currentCatModalType === 'income' ? incomeCategories : expenseCategories;
+
+            if (editIndex >= 0) {
+                const oldName = activeList[editIndex];
+                activeList[editIndex] = catName;
+                transactions.forEach(t => {
+                    if (t.category === oldName && t.type === currentCatModalType) t.category = catName;
+                });
+                saveTransactions();
+            } else {
+                if (!activeList.includes(catName)) activeList.push(catName);
+            }
+
+            saveCategories();
+            renderCategoryOptions();
+            renderCategoryList();
+            updateDashboardCharts();
+            resetCatForm();
+        }
+
+        function editCategory(index) {
+            const activeList = currentCatModalType === 'income' ? incomeCategories : expenseCategories;
+            document.getElementById('editCatIndex').value = index;
+            document.getElementById('catNameInput').value = activeList[index];
+            document.getElementById('catSubmitBtn').textContent = 'Simpan';
+            document.getElementById('catCancelBtn').classList.remove('hidden');
+        }
+
+        function deleteCategory(index) {
+            const activeList = currentCatModalType === 'income' ? incomeCategories : expenseCategories;
+            if (confirm('Hapus kategori ini?')) {
+                activeList.splice(index, 1);
+                saveCategories();
+                renderCategoryOptions();
+                renderCategoryList();
+                updateDashboardCharts();
+            }
+        }
+
+        function resetCategoriesToDefault() {
+            if (confirm('Atur ulang kategori ke default?')) {
+                if (currentCatModalType === 'income') incomeCategories = [...DEFAULT_INCOME_CATEGORIES];
+                else expenseCategories = [...DEFAULT_EXPENSE_CATEGORIES];
+                saveCategories();
+                renderCategoryOptions();
+                renderCategoryList();
+            }
+        }
+
+        function resetCatForm() {
+            document.getElementById('editCatIndex').value = '-1';
+            document.getElementById('catNameInput').value = '';
+            document.getElementById('catSubmitBtn').textContent = '+ Tambah';
+            document.getElementById('catCancelBtn').classList.add('hidden');
+        }
+
+        function setDefaultDate() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('txDate').value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        function setTxType(type) {
+            document.getElementById('txType').value = type;
+            const expBtn = document.getElementById('typeExpenseBtn');
+            const incBtn = document.getElementById('typeIncomeBtn');
+
+            if (type === 'expense') {
+                expBtn.className = 'py-2.5 px-4 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all bg-white dark:bg-slate-800 text-rose-600 shadow-sm';
+                incBtn.className = 'py-2.5 px-4 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all text-slate-500 hover:text-emerald-600';
+            } else {
+                incBtn.className = 'py-2.5 px-4 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all bg-white dark:bg-slate-800 text-emerald-600 shadow-sm';
+                expBtn.className = 'py-2.5 px-4 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all text-slate-500 hover:text-rose-600';
+            }
+            renderCategoryOptions();
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editTxId').value;
+            const type = document.getElementById('txType').value;
+            const date = document.getElementById('txDate').value;
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const category = document.getElementById('txCategory').value;
+            const note = document.getElementById('txNote').value.trim();
+
+            if (!amount || amount <= 0 || !date) return;
+
+            let targetTx = null;
+
+            if (editId) {
+                const index = transactions.findIndex(t => t.id === editId);
+                if (index !== -1) {
+                    transactions[index] = { ...transactions[index], type, date, amount, category, note };
+                    targetTx = transactions[index];
+                    showToast('Transaksi diperbarui');
+                    if (webAppUrl) postToSheet('updateTransaction', targetTx);
+                }
+            } else {
+                const newTx = {
+                    id: 'tx_' + Date.now(),
+                    type, date, amount, category, note,
+                    createdAt: new Date().toISOString()
+                };
+                transactions.unshift(newTx);
+                targetTx = newTx;
+                showToast('Transaksi ditambahkan');
+                if (webAppUrl) postToSheet('addTransaction', targetTx);
+            }
+
+            saveTransactions();
+            populateCycleDropdown(false);
+            resetForm();
+            renderTransactions();
+            updateDashboardCharts();
+            switchTab('history');
+        }
+
+        function editTransaction(id) {
+            const tx = transactions.find(t => t.id === id);
+            if (!tx) return;
+
+            document.getElementById('editTxId').value = tx.id;
+            setTxType(tx.type);
+            document.getElementById('txDate').value = tx.date;
+            document.getElementById('txAmount').value = tx.amount;
+            document.getElementById('txCategory').value = tx.category;
+            document.getElementById('txNote').value = tx.note || '';
+
+            document.getElementById('submitBtnLabel').textContent = 'Perbarui Transaksi';
+            document.getElementById('formTitleText').textContent = 'Edit Transaksi';
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+            switchTab('input');
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Hapus transaksi ini?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                saveTransactions();
+                renderTransactions();
+                updateDashboardCharts();
+                if (webAppUrl) postToSheet('deleteTransaction', { id: id });
+                showToast('Transaksi dihapus');
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('editTxId').value = '';
+            document.getElementById('txAmount').value = '';
+            document.getElementById('txNote').value = '';
+            document.getElementById('submitBtnLabel').textContent = 'Simpan Transaksi';
+            document.getElementById('formTitleText').textContent = 'Catat Transaksi Baru';
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+            setDefaultDate();
+        }
+
+        function renderTransactions() {
+            const container = document.getElementById('txListContainer');
+            const cycle = getSelectedCycleDates();
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            if (!cycle) return;
+
+            let filtered = transactions.filter(t => {
+                const tDate = new Date(t.date + 'T00:00:00');
+                return tDate >= cycle.startDate && tDate <= cycle.endDate;
+            });
+
+            let totalIncome = 0;
+            let totalExpense = 0;
+
+            filtered.forEach(t => {
+                if (t.type === 'income') totalIncome += t.amount;
+                else totalExpense += t.amount;
+            });
+
+            document.getElementById('totalIncomeText').textContent = formatRp(totalIncome);
+            document.getElementById('totalExpenseText').textContent = formatRp(totalExpense);
+            document.getElementById('netBalanceText').textContent = formatRp(totalIncome - totalExpense);
+
+            if (typeFilter !== 'all') filtered = filtered.filter(t => t.type === typeFilter);
+
+            if (searchQuery) {
+                filtered = filtered.filter(t => 
+                    (t.note && t.note.toLowerCase().includes(searchQuery)) ||
+                    (t.category && t.category.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10">
+                        <i class="fa-regular fa-folder-open text-3xl text-slate-300 mb-2"></i>
+                        <p class="text-xs text-slate-400">Tidak ada transaksi ditemukan pada periode ini.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(t => {
+                const isIncome = t.type === 'income';
+                const catIcon = getCategoryIcon(t.category);
+                const item = document.createElement('div');
+                item.className = 'py-2.5 px-1 grid grid-cols-12 items-center gap-1 hover:bg-slate-50/60 dark:hover:bg-slate-800/60 transition rounded-xl';
+                
+                item.innerHTML = `
+                    <div class="col-span-4 flex items-center gap-2 overflow-hidden pr-1">
+                        <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${isIncome ? 'bg-emerald-100 text-emerald-600' : 'bg-lilac-100 text-lilac-600'}">
+                            <i class="fa-solid ${catIcon} text-xs"></i>
+                        </div>
+                        <div class="truncate">
+                            <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${escapeHtml(t.category)}</p>
+                            <p class="text-[10px] text-slate-500 truncate">${t.note ? escapeHtml(t.note) : '-'}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-span-3 flex items-center">
+                        <span class="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-lg bg-lilac-100/70 dark:bg-slate-700 text-lilac-800 dark:text-lilac-200 font-bold whitespace-nowrap">
+                            ${formatDateShort(t.date)}
+                        </span>
+                    </div>
+
+                    <div class="col-span-3 text-right">
+                        <span class="text-xs font-bold ${isIncome ? 'text-emerald-600' : 'text-lilac-700 dark:text-lilac-300'}">
+                            ${isIncome ? '+' : '-'}${formatRp(t.amount)}
+                        </span>
+                    </div>
+
+                    <div class="col-span-2 flex items-center justify-center gap-0.5">
+                        <button onclick="editTransaction('${t.id}')" class="p-1 text-slate-400 hover:text-sky-600 transition" title="Edit">
+                            <i class="fa-solid fa-pen text-xs"></i>
+                        </button>
+                        <button onclick="deleteTransaction('${t.id}')" class="p-1 text-slate-400 hover:text-rose-600 transition" title="Hapus">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        function updateDashboardCharts() {
+            updateCategoryChart();
+            updateTrendChart();
+        }
+
+        function updateCategoryChart() {
+            const cycle = getCategoryChartCycleDates();
+            if (!cycle) return;
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const chartTypeFilter = document.getElementById('catChartTypeFilter')?.value || 'expense';
+
+            const cycleFilteredTx = transactions.filter(t => {
+                const tDate = new Date(t.date + 'T00:00:00');
+                const dateMatch = tDate >= cycle.startDate && tDate <= cycle.endDate;
+                if (!dateMatch) return false;
+
+                if (chartTypeFilter === 'all') return true;
+                return t.type === chartTypeFilter;
+            });
+
+            const categorySums = {};
+            cycleFilteredTx.forEach(t => {
+                categorySums[t.category] = (categorySums[t.category] || 0) + t.amount;
+            });
+
+            const sortedCategories = Object.entries(categorySums)
+                .map(([category, amount]) => ({ category, amount }))
+                .sort((a, b) => b.amount - a.amount);
+
+            const catLabels = sortedCategories.map(item => item.category);
+            const catData = sortedCategories.map(item => item.amount);
+
+            const catCanvas = document.getElementById('categoryChart');
+            if (!catCanvas) return;
+            const catCtx = catCanvas.getContext('2d');
+            const legendContainer = document.getElementById('categoryLegendContainer');
+
+            if (categoryChartInstance) categoryChartInstance.destroy();
+
+            if (catData.length === 0) {
+                if (legendContainer) legendContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-6 w-full">Tidak ada data transaksi pada siklus ini 🌸</p>';
+                categoryChartInstance = new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: { labels: ['Tidak ada data'], datasets: [{ data: [1], backgroundColor: [isDark ? '#334155' : '#e2e8f0'] }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+                });
+            } else {
+                const palette = ['#c084fc', '#f472b6', '#a78bfa', '#fb7185', '#38bdf8', '#34d399', '#fbbf24', '#e879f9', '#818cf8', '#f43f5e'];
+                const totalAmount = catData.reduce((a, b) => a + b, 0);
+
+                if (legendContainer) {
+                    legendContainer.innerHTML = '';
+                    catLabels.forEach((label, idx) => {
+                        const val = catData[idx];
+                        const pct = totalAmount > 0 ? ((val / totalAmount) * 100).toFixed(1) : '0';
+                        const color = palette[idx % palette.length];
+                        const iconClass = getCategoryIcon(label);
+
+                        const item = document.createElement('div');
+                        item.className = 'flex items-center justify-between gap-2 p-1.5 rounded-2xl bg-lilac-50/60 dark:bg-slate-900/60 border border-lilac-200/50 text-[11px]';
+                        item.style.borderLeft = `3.5px solid ${color}`;
+                        item.innerHTML = `
+                            <div class="flex items-center gap-2 min-w-0 truncate">
+                                <i class="fa-solid ${iconClass} text-[10px]"></i>
+                                <span class="font-bold text-slate-700 dark:text-slate-200 truncate">${escapeHtml(label)}</span>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span class="font-bold text-slate-800 dark:text-slate-100">${formatRp(val)}</span>
+                                <span class="text-[10px] text-lilac-600 font-bold ml-1">(${pct}%)</span>
+                            </div>
+                        `;
+                        legendContainer.appendChild(item);
+                    });
+                }
+
+                categoryChartInstance = new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: { labels: catLabels, datasets: [{ data: catData, backgroundColor: palette.slice(0, catLabels.length), borderWidth: 2, borderColor: isDark ? '#1e293b' : '#ffffff' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                });
+            }
+        }
+
+        function updateTrendChart() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#c084fc' : '#7e22ce';
+
+            const chartRangeFilter = parseInt(document.getElementById('trendRangeFilter')?.value || '6', 10);
+            const displayType = document.getElementById('trendTypeFilter')?.value || 'both';
+
+            const cycleOptions = Array.from(document.getElementById('cycleSelect').options);
+            const sortedCycleOpts = [...cycleOptions].reverse().slice(-chartRangeFilter);
+
+            const trendLabels = [];
+            const trendExpenseData = [];
+            const trendIncomeData = [];
+
+            sortedCycleOpts.forEach(opt => {
+                const sDate = new Date(opt.dataset.startDate);
+                const eDate = new Date(opt.dataset.endDate);
+                
+                const labelParts = opt.textContent.split('-');
+                const shortLabel = labelParts[0].trim() + ' - ' + labelParts[1].trim().split(' ').slice(0, 2).join(' ');
+                trendLabels.push(shortLabel);
+
+                const cycleTxList = transactions.filter(t => {
+                    const tDate = new Date(t.date + 'T00:00:00');
+                    return tDate >= sDate && tDate <= eDate;
+                });
+
+                trendExpenseData.push(cycleTxList.filter(t => t.type === 'expense').reduce((a, b) => a + b.amount, 0));
+                trendIncomeData.push(cycleTxList.filter(t => t.type === 'income').reduce((a, b) => a + b.amount, 0));
+            });
+
+            const trendCanvas = document.getElementById('trendChart');
+            if (!trendCanvas) return;
+            const trendCtx = trendCanvas.getContext('2d');
+
+            if (trendChartInstance) trendChartInstance.destroy();
+
+            const datasets = [];
+            if (displayType === 'both' || displayType === 'expense') {
+                datasets.push({ label: 'Pengeluaran', data: trendExpenseData, backgroundColor: '#c084fc', borderRadius: 8 });
+            }
+            if (displayType === 'both' || displayType === 'income') {
+                datasets.push({ label: 'Pemasukan', data: trendIncomeData, backgroundColor: '#34d399', borderRadius: 8 });
+            }
+
+            trendChartInstance = new Chart(trendCtx, {
+                type: 'bar',
+                data: { labels: trendLabels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { ticks: { color: textColor, font: { size: 9 } }, grid: { display: false } },
+                        y: { ticks: { color: textColor, font: { size: 9 } }, grid: { color: isDark ? '#334155' : '#f3e8ff' } }
+                    },
+                    plugins: { legend: { position: 'top', labels: { color: textColor, font: { size: 10 } } } }
+                }
+            });
+        }
+
+        function exportToExcel() {
+            const cycle = getSelectedCycleDates();
+            if (!cycle) return;
+
+            const cycleTx = transactions.filter(t => {
+                const tDate = new Date(t.date + 'T00:00:00');
+                return tDate >= cycle.startDate && tDate <= cycle.endDate;
+            });
+
+            if (cycleTx.length === 0) {
+                showToast('Tidak ada transaksi untuk diunduh', 'error');
+                return;
+            }
+
+            const excelData = cycleTx.map((t, idx) => ({
+                'No': idx + 1,
+                'Tanggal': t.date,
+                'Tipe': t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                'Kategori': t.category,
+                'Jumlah (Rp)': t.amount,
+                'Catatan': t.note || '-'
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Riwayat Transaksi');
+            XLSX.writeFile(workbook, `Keuangan_Siklus_${cycle.key}.xlsx`);
+            showToast('File Excel berhasil diunduh');
+        }
+
+        function formatRp(num) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num || 0);
+        }
+
+        function getCategoryIcon(cat) {
+            const name = (cat || '').toLowerCase();
+            if (name.includes('makan')) return 'fa-utensils';
+            if (name.includes('minum')) return 'fa-mug-hot';
+            if (name.includes('jajan')) return 'fa-cookie-bite';
+            if (name.includes('belanja')) return 'fa-bag-shopping';
+            if (name.includes('bensin') || name.includes('bbm')) return 'fa-gas-pump';
+            if (name.includes('kos')) return 'fa-house';
+            if (name.includes('arisan')) return 'fa-users';
+            if (name.includes('keluarga')) return 'fa-heart';
+            if (name.includes('setoran') || name.includes('tabung')) return 'fa-piggy-bank';
+            if (name.includes('motor')) return 'fa-motorcycle';
+            if (name.includes('pulang') || name.includes('tiket')) return 'fa-bus';
+            if (name.includes('gaji')) return 'fa-wallet';
+            if (name.includes('bonus')) return 'fa-gift';
+            if (name.includes('sampingan')) return 'fa-briefcase';
+            return 'fa-spa';
+        }
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr + 'T00:00:00');
+            if (isNaN(d.getTime())) return dateStr;
+            const day = String(d.getDate()).padStart(2, '0');
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+            return `${day} ${monthNames[d.getMonth()]}`;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            if (!toast || !toastMsg || !toastIcon) return;
+
+            toastMsg.textContent = msg;
+            toastIcon.className = type === 'error' ? 'fa-solid fa-circle-exclamation text-rose-400' : 'fa-solid fa-circle-check text-emerald-400';
+
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
